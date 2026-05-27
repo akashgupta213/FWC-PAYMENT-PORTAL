@@ -32,12 +32,16 @@ const register = async (req, res) => {
       passwordHash: password
     });
     // 👇 add this block right here
-    try {
-        await sendWelcomeEmail(student.name, student.email, student.cometId);
-          } catch (mailErr) {
-            console.error('Welcome email failed:', mailErr);
+    //try {
+      //  await sendWelcomeEmail(student.name, student.email, student.cometId);
+        //  } catch (mailErr) {
+          //  console.error('Welcome email failed:', mailErr);
               // we don't block registration if email fails
-              }
+            //  }
+
+    // Fire and forget — don't block registration
+sendWelcomeEmail(student.name, student.email, student.cometId)
+  .catch(err => console.log('Welcome email failed:', err.message));
 
     const payload = { id: student._id, cometId: student.cometId, role: student.role };
     const { accessToken, refreshToken } = signTokens(payload);
