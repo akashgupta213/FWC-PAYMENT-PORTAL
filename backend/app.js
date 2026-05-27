@@ -8,6 +8,7 @@ const paymentRoutes = require('./routes/payment');
 const moduleRoutes  = require('./routes/modules');
 
 const app = express();
+app.set('trust proxy', 1);
 
 
 const assetsRoutes = require('./routes/assets');
