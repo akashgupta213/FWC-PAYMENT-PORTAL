@@ -100,6 +100,13 @@ const handleSubmit = () => {
 
   const divider = { height: '1px', background: '#dbe4ff', margin: '0 20px' };
 
+  const formatDisplayDate = (val) => {
+  if (!val) return '';
+  const [y, m, d] = val.split('-');
+  return `${d}-${m}-${y}`;
+};
+
+  
   // ── EXPIRED ──
   if (expired) {
     return (
@@ -317,7 +324,7 @@ const handleSubmit = () => {
           )}
           {dateValid && (
             <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <i className="fas fa-circle-check" /> Date recorded
+              <i className="fas fa-circle-check" /> {formatDisplayDate(paymentDate)}
             </p>
           )}
         </div>
