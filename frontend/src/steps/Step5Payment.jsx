@@ -16,7 +16,9 @@ export default function Step5Payment({ form, updateForm, onBack, onSubmit, submi
   const [utr, setUtr]               = useState(form.utrNumber || '');
   const [touched, setTouched]       = useState(false);
   const intervalRef                 = useRef(null);
-
+  const [paymentDate, setPaymentDate] = useState(form.paymentDate || '');
+  const [dateTouched, setDateTouched] = useState(false);
+  
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setTimeLeft(t => {
@@ -45,13 +47,17 @@ export default function Step5Payment({ form, updateForm, onBack, onSubmit, submi
 
   const utrError = touched ? validateUTR(utr) : null;
   const utrValid = !validateUTR(utr);
+  // ADD these two lines before handleSubmit:
+  const dateError = dateTouched && !paymentDate ? 'Payment date is required' : null;
+  const dateValid = !!paymentDate;
 
 // ✅ Fixed — pass UTR directly so submit() doesn't depend on stale state
 const handleSubmit = () => {
   setTouched(true);
-  if (!utrValid) return;
-  updateForm({ utrNumber: utr.trim() });
-  onSubmit(utr.trim());  // ← pass it directly
+  setDateTouched(true);
+  if (!utrValid || !dateValid) return;
+  updateForm({ utrNumber: utr.trim(), paymentDate });
+  onSubmit(utr.trim(), paymentDate);
 };
 
   const handleCancel = () => {
@@ -268,20 +274,68 @@ const handleSubmit = () => {
           )}
         </div>
 
+
+        {/* Payment Date input box */}
+<div style={{
+  background: dateValid ? '#f0fdf4' : '#f0f4ff',
+  border: `1px solid ${dateError ? '#fca5a5' : dateValid ? '#86efac' : '#dbe4ff'}`,
+  borderRadius: '12px',
+  padding: '18px 20px',
+  marginBottom: '16px',
+}}>
+  <p style={{ fontSize: '11px', fontWeight: 700, color: '#1a3a8f', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <i className="fas fa-calendar-day" style={{ color: dateValid ? '#16a34a' : '#2d55a0' }} />
+    Date of Payment
+  </p>
+  <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 12px', lineHeight: 1.5 }}>
+    Enter the date on which you made the UPI payment
+  </p>
+  <input
+    type="date"
+    value={paymentDate}
+    max={new Date().toISOString().split('T')[0]}
+    onChange={e => { setPaymentDate(e.target.value); setDateTouched(true); }}
+    style={{
+      width: '100%',
+      border: `2px solid ${dateError ? '#fca5a5' : dateValid ? '#86efac' : '#dbe4ff'}`,
+      borderRadius: '10px',
+      padding: '12px 16px',
+      fontFamily: 'inherit',
+      fontSize: '15px',
+      fontWeight: 600,
+      color: '#1f2937',
+      background: '#fff',
+      outline: 'none',
+      boxSizing: 'border-box',
+      cursor: 'pointer',
+    }}
+  />
+  {dateError && (
+    <p style={{ fontSize: '12px', color: '#dc2626', margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <i className="fas fa-circle-xmark" /> {dateError}
+    </p>
+  )}
+  {dateValid && (
+    <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <i className="fas fa-circle-check" /> Date confirmed
+    </p>
+  )}
+</div>
+
         {/* Confirm button */}
         <button
           onClick={handleSubmit}
-          disabled={submitting || !utrValid || expired}
+          disabled={submitting || !utrValid || !dateValid || expired}
           style={{
             width: '100%',
             padding: '14px',
-            background: submitting || !utrValid || expired ? '#cbd5e1' : '#16a34a',
+            background: submitting || !utrValid || !dateValid || expired ? '#cbd5e1' : '#16a34a',
             border: 'none',
             borderRadius: '10px',
             color: '#fff',
             fontSize: '15px',
             fontWeight: 700,
-            cursor: submitting || !utrValid || expired ? 'not-allowed' : 'pointer',
+            cursor: submitting || !utrValid || !dateValid || expired ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -290,8 +344,8 @@ const handleSubmit = () => {
             marginBottom: '20px',
             transition: 'background 0.15s',
           }}
-          onMouseEnter={e => { if (!submitting && utrValid && !expired) e.currentTarget.style.background = '#15803d'; }}
-          onMouseLeave={e => { if (!submitting && utrValid && !expired) e.currentTarget.style.background = '#16a34a'; }}
+          onMouseEnter={e => { if (!submitting && utrValid && dateValid && !expired) e.currentTarget.style.background = '#15803d'; }}
+          onMouseLeave={e => { if (!submitting && utrValid && dateValid && !expired) e.currentTarget.style.background = '#16a34a'; }}
         >
           {submitting
             ? <><i className="fas fa-spinner fa-spin" /> Submitting…</>
