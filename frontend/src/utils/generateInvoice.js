@@ -71,7 +71,7 @@ const date = dateObj.toLocaleDateString('en-IN', { day:'2-digit', month:'long', 
   // Modules table
   autoTable(doc, {
     startY: 145,
-    head: [['Module / Term', 'Amount (₹)']],
+    head: [['Module / Term', 'Amount (Rs.)']],
     body: [
       ...payment.modules.map(m => [
         `${m.moduleName}${m.termName ? ' — ' + m.termName : ''}`,
@@ -86,7 +86,7 @@ const date = dateObj.toLocaleDateString('en-IN', { day:'2-digit', month:'long', 
   });
 
   // Footer
-  const finalY = doc.lastAutoTable.finalY + 10;
+
   doc.setFillColor(30, 41, 59);
   doc.rect(0, 280, 210, 17, 'F');
   doc.setTextColor(148, 163, 184);
