@@ -368,7 +368,7 @@ export default function AdminDashboard() {
                       </td>
 
                       {/* Action */}
-                      <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '14px 24px', whiteSpace: 'nowrap' }}>
                         {p.paymentStatus === 'Pending Verification' ? (
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <button
