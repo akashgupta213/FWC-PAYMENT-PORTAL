@@ -184,7 +184,7 @@ const resubmitUTR = async (req, res) => {
 
     // Update: new UTR, new date, reset status, mark resubmitted
     payment.utrNumber     = utrNumber;
-    payment.paymentDate   = new Date(paymentDate);
+    payment.paymentDate   = new Date(paymentDate + 'T00:00:00');
     payment.paymentStatus = 'Pending Verification';
     payment.resubmitted   = true;
     await payment.save();
