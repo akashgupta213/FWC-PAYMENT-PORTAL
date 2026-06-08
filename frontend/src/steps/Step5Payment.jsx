@@ -48,15 +48,18 @@ export default function Step5Payment({ form, updateForm, onBack, onSubmit, submi
   const utrError = touched ? validateUTR(utr) : null;
   const utrValid = !validateUTR(utr);
   const dateError = dateTouched && !paymentDate ? 'Date of payment is required' : null;
-  const dateValid = !!paymentDate;
+  const dateValid = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/.test(paymentDate);
 
 // ✅ Fixed — pass UTR directly so submit() doesn't depend on stale state
 const handleSubmit = () => {
   setTouched(true);
   setDateTouched(true);
   if (!utrValid || !dateValid) return;
-  updateForm({ utrNumber: utr.trim(), paymentDate });
-  onSubmit(utr.trim(), paymentDate);  // ← pass directly
+  // Convert dd-mm-yyyy → yyyy-mm-dd for backend
+  const [d, m, y] = paymentDate.split('-');
+  const isoDate = `${y}-${m}-${d}`;
+  updateForm({ utrNumber: utr.trim(), paymentDate: isoDate });
+  onSubmit(utr.trim(), isoDate);
 };
 
   const handleCancel = () => {
@@ -296,27 +299,34 @@ const handleSubmit = () => {
             Select the date on which you made the UPI payment
           </p>
           <input
-            type="date"
-            value={paymentDate}
-            max={new Date().toISOString().split('T')[0]}
-            onChange={e => { setPaymentDate(e.target.value); setDateTouched(true); }}
-            onBlur={() => setDateTouched(true)}
-            style={{
-              width: '100%',
-              border: `2px solid ${dateError ? '#fca5a5' : dateValid ? '#86efac' : '#dbe4ff'}`,
-              borderRadius: '10px',
-              padding: '12px 16px',
-              fontFamily: 'inherit',
-              fontSize: '15px',
-              fontWeight: 600,
-              color: '#1f2937',
-              background: '#fff',
-              outline: 'none',
-              boxSizing: 'border-box',
-              transition: 'border-color 0.15s',
-              cursor: 'pointer',
-            }}
-          />
+  type="text"
+  value={paymentDate}
+  placeholder="DD-MM-YYYY"
+  maxLength={10}
+  onChange={e => {
+    let val = e.target.value.replace(/[^0-9]/g, '');
+    if (val.length >= 3 && val.length <= 4) val = val.slice(0, 2) + '-' + val.slice(2);
+    if (val.length >= 5) val = val.slice(0, 2) + '-' + val.slice(2, 4) + '-' + val.slice(4, 8);
+    setPaymentDate(val);
+    setDateTouched(true);
+  }}
+  onBlur={() => setDateTouched(true)}
+  style={{
+    width: '100%',
+    border: `2px solid ${dateError ? '#fca5a5' : dateValid ? '#86efac' : '#dbe4ff'}`,
+    borderRadius: '10px',
+    padding: '12px 16px',
+    fontFamily: 'monospace',
+    fontSize: '16px',
+    fontWeight: 600,
+    color: '#1f2937',
+    background: '#fff',
+    outline: 'none',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.15s',
+    letterSpacing: '2px',
+  }}
+/>
           {dateError && (
             <p style={{ fontSize: '12px', color: '#dc2626', margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <i className="fas fa-circle-xmark" /> {dateError}
