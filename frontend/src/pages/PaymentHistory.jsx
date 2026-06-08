@@ -159,6 +159,7 @@ function SkeletonCard() {
 function ResubmitBlock({ payment, onSuccess }) {
   const [showInput, setShowInput] = useState(false);
   const [utr, setUtr]             = useState('');
+  const [paymentDate, setPaymentDate] = useState('');
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');
 
@@ -188,10 +189,14 @@ function ResubmitBlock({ payment, onSuccess }) {
       setError('UTR must be exactly 12 digits.');
       return;
     }
+    if (!paymentDate) {
+      setError('Please select the date of payment.');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
-      const { data } = await api.patch(`/payment/resubmit/${payment._id}`, { utrNumber: utr });
+      const { data } = await api.patch(`/payment/resubmit/${payment._id}`, { utrNumber: utr, paymentDate });
       onSuccess(data.payment);
       setShowInput(false);
     } catch (err) {
@@ -287,7 +292,7 @@ function ResubmitBlock({ payment, onSuccess }) {
               }
             </button>
             <button
-              onClick={() => { setShowInput(false); setUtr(''); setError(''); }}
+              onClick={() => { setShowInput(false); setUtr(''); setPaymentDate(''); setError(''); }}
               disabled={loading}
               style={{
                 background: 'none', border: '1px solid #e5eaf3',
@@ -299,6 +304,27 @@ function ResubmitBlock({ payment, onSuccess }) {
               Cancel
             </button>
           </div>
+
+          {/* Date of Payment */}
+          <p style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '12px 0 8px' }}>
+            Date of Payment
+          </p>
+          <input
+            type="date"
+            value={paymentDate}
+            max={new Date().toISOString().split('T')[0]}
+            onChange={e => { setPaymentDate(e.target.value); setError(''); }}
+            style={{
+              width: '100%', padding: '9px 12px',
+              border: error && !paymentDate ? '1px solid #dc2626' : '1px solid #dbe4ff',
+              borderRadius: '8px', fontSize: '14px',
+              fontFamily: 'inherit', outline: 'none',
+              background: '#fff', color: '#1f2937',
+              fontWeight: 600, cursor: 'pointer',
+            }}
+            onFocus={e => e.target.style.borderColor = '#2d55a0'}
+            onBlur={e => e.target.style.borderColor = '#dbe4ff'}
+          />
           {error && (
             <p style={{ fontSize: '11px', color: '#dc2626', margin: '6px 0 0', fontWeight: 600 }}>
               <i className="fas fa-triangle-exclamation" style={{ marginRight: '4px' }} />
