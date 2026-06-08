@@ -48,18 +48,15 @@ export default function Step5Payment({ form, updateForm, onBack, onSubmit, submi
   const utrError = touched ? validateUTR(utr) : null;
   const utrValid = !validateUTR(utr);
   const dateError = dateTouched && !paymentDate ? 'Date of payment is required' : null;
-  const dateValid = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/.test(paymentDate);
+  const dateValid = !!paymentDate;
 
 // ✅ Fixed — pass UTR directly so submit() doesn't depend on stale state
 const handleSubmit = () => {
   setTouched(true);
   setDateTouched(true);
   if (!utrValid || !dateValid) return;
-  // Convert dd-mm-yyyy → yyyy-mm-dd for backend
-  const [d, m, y] = paymentDate.split('-');
-  const isoDate = `${y}-${m}-${d}`;
-  updateForm({ utrNumber: utr.trim(), paymentDate: isoDate });
-  onSubmit(utr.trim(), isoDate);
+  updateForm({ utrNumber: utr.trim(), paymentDate });
+  onSubmit(utr.trim(), paymentDate);
 };
 
   const handleCancel = () => {
@@ -103,11 +100,7 @@ const handleSubmit = () => {
 
   const divider = { height: '1px', background: '#dbe4ff', margin: '0 20px' };
 
-  const formatDisplayDate = (val) => {
-  if (!val) return '';
-  const [y, m, d] = val.split('-');
-  return `${d}-${m}-${y}`;
-};
+
 
   
   // ── EXPIRED ──
@@ -299,32 +292,25 @@ const handleSubmit = () => {
             Select the date on which you made the UPI payment
           </p>
           <input
-  type="text"
+  type="date"
   value={paymentDate}
-  placeholder="DD-MM-YYYY"
-  maxLength={10}
-  onChange={e => {
-    let val = e.target.value.replace(/[^0-9]/g, '');
-    if (val.length >= 3 && val.length <= 4) val = val.slice(0, 2) + '-' + val.slice(2);
-    if (val.length >= 5) val = val.slice(0, 2) + '-' + val.slice(2, 4) + '-' + val.slice(4, 8);
-    setPaymentDate(val);
-    setDateTouched(true);
-  }}
+  max={new Date().toISOString().split('T')[0]}
+  onChange={e => { setPaymentDate(e.target.value); setDateTouched(true); }}
   onBlur={() => setDateTouched(true)}
   style={{
     width: '100%',
     border: `2px solid ${dateError ? '#fca5a5' : dateValid ? '#86efac' : '#dbe4ff'}`,
     borderRadius: '10px',
     padding: '12px 16px',
-    fontFamily: 'monospace',
-    fontSize: '16px',
+    fontFamily: 'inherit',
+    fontSize: '15px',
     fontWeight: 600,
     color: '#1f2937',
     background: '#fff',
     outline: 'none',
     boxSizing: 'border-box',
     transition: 'border-color 0.15s',
-    letterSpacing: '2px',
+    cursor: 'pointer',
   }}
 />
           {dateError && (
@@ -332,11 +318,12 @@ const handleSubmit = () => {
               <i className="fas fa-circle-xmark" /> {dateError}
             </p>
           )}
-          {dateValid && (
-            <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <i className="fas fa-circle-check" /> {formatDisplayDate(paymentDate)}
-            </p>
-          )}
+         {dateValid && (
+  <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+    <i className="fas fa-circle-check" />
+    {new Date(paymentDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+  </p>
+)}
         </div>
 
         {/* Confirm button */}
