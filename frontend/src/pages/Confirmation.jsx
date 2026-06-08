@@ -101,7 +101,7 @@ export default function Confirmation() {
                   <i className="fas fa-calendar-day" style={{ color: '#16a34a' }} /> Date of Payment
                 </span>
                 <span style={{ fontSize: '13px', fontWeight: 700, color: '#16a34a' }}>
-                  {new Date(form.paymentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  {new Date(form.paymentDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
                 </span>
               </div>
             )}
