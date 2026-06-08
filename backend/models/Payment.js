@@ -26,6 +26,8 @@ const paymentSchema = new mongoose.Schema({
     required: true,
     match: [/^[0-9]{12}$/, 'UTR must be exactly 12 digits']
   },
+
+  paymentDate: { type: Date , required : true },   // ← ADD THIS
   paymentMode:   { type: String, default: 'QR / UPI' },
   paymentStatus: {
     type: String,
