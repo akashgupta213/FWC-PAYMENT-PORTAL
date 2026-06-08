@@ -15,8 +15,8 @@ export default function Step5Payment({ form, updateForm, onBack, onSubmit, submi
   const [expired, setExpired]       = useState(false);
   const [utr, setUtr]               = useState(form.utrNumber || '');
   const [paymentDate, setPaymentDate] = useState(form.paymentDate || '');
-  const [touched, setTouched]       = useState(false);
   const [dateTouched, setDateTouched] = useState(false);
+  const [touched, setTouched]       = useState(false);
   const intervalRef                 = useRef(null);
 
   useEffect(() => {
@@ -47,17 +47,16 @@ export default function Step5Payment({ form, updateForm, onBack, onSubmit, submi
 
   const utrError = touched ? validateUTR(utr) : null;
   const utrValid = !validateUTR(utr);
+  const dateError = dateTouched && !paymentDate ? 'Date of payment is required' : null;
+  const dateValid = !!paymentDate;
 
 // ✅ Fixed — pass UTR directly so submit() doesn't depend on stale state
-const dateError = dateTouched && !paymentDate ? 'Payment date is required' : null;
-const dateValid = !!paymentDate;
-
 const handleSubmit = () => {
   setTouched(true);
   setDateTouched(true);
   if (!utrValid || !dateValid) return;
   updateForm({ utrNumber: utr.trim(), paymentDate });
-  onSubmit(utr.trim(), paymentDate);  // ← pass both directly
+  onSubmit(utr.trim(), paymentDate);  // ← pass directly
 };
 
   const handleCancel = () => {
@@ -274,7 +273,7 @@ const handleSubmit = () => {
           )}
         </div>
 
-        {/* Payment Date input box */}
+        {/* Date of Payment box */}
         <div style={{
           background: dateValid ? '#f0fdf4' : '#f0f4ff',
           border: `1px solid ${dateError ? '#fca5a5' : dateValid ? '#86efac' : '#dbe4ff'}`,
@@ -287,13 +286,14 @@ const handleSubmit = () => {
             Date of Payment
           </p>
           <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 12px', lineHeight: 1.5 }}>
-            Enter the date on which you made the UPI payment
+            Select the date on which you made the UPI payment
           </p>
           <input
             type="date"
             value={paymentDate}
             max={new Date().toISOString().split('T')[0]}
             onChange={e => { setPaymentDate(e.target.value); setDateTouched(true); }}
+            onBlur={() => setDateTouched(true)}
             style={{
               width: '100%',
               border: `2px solid ${dateError ? '#fca5a5' : dateValid ? '#86efac' : '#dbe4ff'}`,
@@ -317,7 +317,7 @@ const handleSubmit = () => {
           )}
           {dateValid && (
             <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <i className="fas fa-circle-check" /> Date confirmed
+              <i className="fas fa-circle-check" /> Date recorded
             </p>
           )}
         </div>
