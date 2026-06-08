@@ -17,6 +17,7 @@ export default function Confirmation() {
     modules: form?.modules || [],
     grandTotal: form?.grandTotal,
     utrNumber: payment?.utrNumber,
+    paymentDate: form?.paymentDate,   // ← ADD THIS LINE
   };
 
   // ── styles ────────────────────────────────────────────────────────────────
@@ -93,6 +94,19 @@ export default function Confirmation() {
               </div>
             </div>
 
+               {/* Payment date badge */}
+            {form?.paymentDate && (
+              <div style={{ background: '#f0fdf4', borderBottom: '1px solid #dbe4ff', padding: '10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <i className="fas fa-calendar-day" style={{ color: '#16a34a' }} /> Date of Payment
+                </span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#16a34a' }}>
+                  {new Date(form.paymentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
+                </span>
+              </div>
+            )}
+
+            
             {/* User details */}
             <div style={{ ...box, borderRadius: 0, border: 'none', borderBottom: '1px solid #dbe4ff' }}>
               {[
