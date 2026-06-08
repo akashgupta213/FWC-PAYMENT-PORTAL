@@ -243,8 +243,8 @@ export default function AdminDashboard() {
 
         {/* ── Table ─────────────────────────────────────────────────────────── */}
         <div style={{ ...T.card, overflow: 'hidden' }}>
-          <div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1100px' }}>
 
               {/* Single thead — columns share widths with tbody */}
               <thead>
