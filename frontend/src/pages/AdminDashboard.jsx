@@ -12,6 +12,15 @@ const T = {
   page:     { minHeight: '100vh', background: '#eef2f7', fontFamily: "'Plus Jakarta Sans', sans-serif", display: 'flex', flexDirection: 'column' },
   card:     { background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.07)' },
 };
+const [filterModule, setFilterModule] = useState('All');
+const MODULES = [
+  'All',
+  'Module 1',
+  'Module 2 - Term 1',
+  'Module 2 - Term 2',
+  'Module 3 - Term 1',
+  'Module 3 - Term 2',
+];
 
 const STATUS_STYLE = {
   'Pending Verification': { background: '#fef9c3', color: '#854d0e', border: '1px solid #fde68a' },
@@ -83,12 +92,19 @@ export default function AdminDashboard() {
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
-  const filtered = payments.filter(p =>
-    !search.trim() ||
+ const filtered = payments.filter(p => {
+  const matchesSearch = !search.trim() ||
     p.cometId?.toLowerCase().includes(search.toLowerCase()) ||
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.utrNumber?.includes(search)
-  );
+    p.utrNumber?.includes(search);
+
+  const matchesModule = filterModule === 'All' || p.modules?.some(m => {
+    const label = `${m.moduleName}${m.termName ? ' - ' + m.termName : ''}`;
+    return label.toLowerCase().includes(filterModule.toLowerCase());
+  });
+
+  return matchesSearch && matchesModule;
+});;
 
   const stats = [
     { label: 'Total Payments', count: payments.length,                                                         icon: 'fa-layer-group',  accent: '#2d55a0' },
@@ -211,6 +227,7 @@ export default function AdminDashboard() {
             />
           </div>
 
+          
           {/* Status pills */}
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             {STATUSES.map(s => (
@@ -224,6 +241,33 @@ export default function AdminDashboard() {
             ))}
           </div>
 
+     
+          {/* Module filter */}
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {MODULES.map(m => (
+              <button
+                key={m}
+                onClick={() => setFilterModule(m)}
+                style={{
+                  padding: '7px 14px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  border: filterModule === m ? '1px solid #16a34a' : '1px solid #dbe4ff',
+                  background: filterModule === m ? '#16a34a' : '#f0f4ff',
+                  color: filterModule === m ? '#fff' : '#6b7280',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+
+         
+            
           {/* Export */}
           <button
             onClick={() => exportPaymentsCSV(payments)}
