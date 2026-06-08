@@ -21,16 +21,7 @@ const date = dateObj.toLocaleDateString('en-IN', { day:'2-digit', month:'long', 
   doc.text('Future Wireless Communications Program', 14, 21);
   doc.text(`Date: ${date}`, 160, 21);
 
-  // Date of Payment box
-doc.setFillColor(240, 249, 255);
-doc.setDrawColor(147, 197, 253);
-doc.roundedRect(14, 119, 182, 20, 3, 3, 'FD');
-doc.setTextColor(29, 78, 216);
-doc.setFont('helvetica', 'bold');
-doc.setFontSize(9);
-doc.text('Date of Payment:', 19, 128);
-doc.setFontSize(11);
-doc.text(date, 19, 136);
+  
   // Yellow bar
   doc.setFillColor(255, 204, 0);
   doc.rect(0, 30, 210, 3, 'F');
@@ -65,6 +56,17 @@ doc.text(date, 19, 136);
   doc.text('UPI Transaction Reference (UTR):', 19, 104);
   doc.setFontSize(11);
   doc.text(payment.utrNumber, 19, 112);
+
+    // Date of Payment box
+  doc.setFillColor(240, 249, 255);
+  doc.setDrawColor(147, 197, 253);
+  doc.roundedRect(14, 119, 182, 20, 3, 3, 'FD');
+  doc.setTextColor(29, 78, 216);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('Date of Payment:', 19, 128);
+  doc.setFontSize(11);
+  doc.text(date, 19, 136);
 
   // Modules table
   autoTable(doc, {
