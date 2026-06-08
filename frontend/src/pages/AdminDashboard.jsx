@@ -7,16 +7,6 @@ import { exportPaymentsCSV } from '../utils/exportCSV';
 
 const STATUSES = ['All', 'Pending Verification', 'Verified', 'Rejected'];
 
-// ADD THIS:
-const MODULES = [
-  'All',
-  'Module 1',
-  'Module 2 - Term 1',
-  'Module 2 - Term 2',
-  'Module 3 - Term 1',
-  'Module 3 - Term 2',
-];
-
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
   page:     { minHeight: '100vh', background: '#eef2f7', fontFamily: "'Plus Jakarta Sans', sans-serif", display: 'flex', flexDirection: 'column' },
@@ -58,9 +48,11 @@ export default function AdminDashboard() {
   const [loading, setLoading]           = useState(true);
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterComet,  setFilterComet]  = useState('');
+  const [filterModule, setFilterModule] = useState('All');
+  const [filterTerm,   setFilterTerm]   = useState('All');
   const [updating, setUpdating]         = useState(null);
   const [search, setSearch]             = useState('');
-  const [filterModule, setFilterModule] = useState('All');
+
   const fetchPayments = async () => {
     setLoading(true);
     try {
@@ -94,18 +86,24 @@ export default function AdminDashboard() {
   const handleLogout = () => { logout(); navigate('/login'); };
 
   const filtered = payments.filter(p => {
-  const matchesSearch = !search.trim() ||
-    p.cometId?.toLowerCase().includes(search.toLowerCase()) ||
-    p.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.utrNumber?.includes(search);
-
-  const matchesModule = filterModule === 'All' || p.modules?.some(m => {
-    const label = `${m.moduleName}${m.termName ? ' - ' + m.termName : ''}`;
-    return label.toLowerCase().includes(filterModule.toLowerCase());
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      if (
+        !p.cometId?.toLowerCase().includes(q) &&
+        !p.name?.toLowerCase().includes(q) &&
+        !p.utrNumber?.includes(q)
+      ) return false;
+    }
+    if (filterModule !== 'All') {
+      const hasModule = p.modules?.some(m => m.moduleName === filterModule);
+      if (!hasModule) return false;
+    }
+    if (filterTerm !== 'All' && filterModule !== 'All') {
+      const hasTerm = p.modules?.some(m => m.moduleName === filterModule && m.termName === filterTerm);
+      if (!hasTerm) return false;
+    }
+    return true;
   });
-
-  return matchesSearch && matchesModule;
-});
 
   const stats = [
     { label: 'Total Payments', count: payments.length,                                                         icon: 'fa-layer-group',  accent: '#2d55a0' },
@@ -200,7 +198,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Filters row */}
-        <div style={{ ...T.card, padding: '16px 20px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+        <div style={{ ...T.card, padding: '16px 20px', marginBottom: '12px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
 
           {/* Live search */}
           <div style={{ position: 'relative', flex: '1 1 200px', minWidth: '180px', maxWidth: '260px' }}>
@@ -241,32 +239,6 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-          {/* Module filter */}
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {MODULES.map(m => (
-              <button
-                key={m}
-                onClick={() => setFilterModule(m)}
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  border: filterModule === m ? '1px solid #16a34a' : '1px solid #dbe4ff',
-                  background: filterModule === m ? '#16a34a' : '#f0f4ff',
-                  color: filterModule === m ? '#fff' : '#6b7280',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-
-          {/* Export */}
-
           {/* Export */}
           <button
             onClick={() => exportPaymentsCSV(payments)}
@@ -279,6 +251,66 @@ export default function AdminDashboard() {
           </button>
         </div>
 
+        {/* Module + Term filter row */}
+        <div style={{ ...T.card, padding: '14px 20px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+
+          {/* Module pills */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginRight: '4px' }}>
+              <i className="fas fa-layer-group" style={{ marginRight: '5px' }} />Module
+            </span>
+            {['All', 'Module 1', 'Module 2', 'Module 3'].map(m => (
+              <button
+                key={m}
+                onClick={() => { setFilterModule(m); setFilterTerm('All'); }}
+                style={{
+                  padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600,
+                  border: filterModule === m ? '1px solid #2d55a0' : '1px solid #dbe4ff',
+                  background: filterModule === m ? '#2d55a0' : '#f0f4ff',
+                  color: filterModule === m ? '#fff' : '#6b7280',
+                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                }}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+
+          {/* Term pills — only shown for Module 2 and Module 3 */}
+          {(filterModule === 'Module 2' || filterModule === 'Module 3') && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', borderLeft: '2px solid #dbe4ff', paddingLeft: '14px', marginLeft: '4px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginRight: '4px' }}>
+                <i className="fas fa-calendar-week" style={{ marginRight: '5px' }} />Term
+              </span>
+              {['All', 'Term 1', 'Term 2'].map(t => (
+                <button
+                  key={t}
+                  onClick={() => setFilterTerm(t)}
+                  style={{
+                    padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600,
+                    border: filterTerm === t ? '1px solid #7c3aed' : '1px solid #dbe4ff',
+                    background: filterTerm === t ? '#7c3aed' : '#f5f3ff',
+                    color: filterTerm === t ? '#fff' : '#6b7280',
+                    cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Clear filter badge */}
+          {(filterModule !== 'All' || filterTerm !== 'All') && (
+            <button
+              onClick={() => { setFilterModule('All'); setFilterTerm('All'); }}
+              style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#dc2626', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              <i className="fas fa-xmark" /> Clear module filter
+            </button>
+          )}
+        </div>
+
         {/* Results count */}
         <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 12px 4px' }}>
           Showing <strong style={{ color: '#374151' }}>{filtered.length}</strong> of <strong style={{ color: '#374151' }}>{payments.length}</strong> records
@@ -289,7 +321,6 @@ export default function AdminDashboard() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1100px' }}>
 
-              {/* Single thead — columns share widths with tbody */}
               <thead>
                 <tr style={{ background: '#f0f4ff', borderBottom: '2px solid #dbe4ff' }}>
                   {['COMET ID', 'Name', 'Modules', 'Amount', 'UTR', 'Payment Date', 'Submitted', 'Status', 'Action'].map(h => (
@@ -336,29 +367,27 @@ export default function AdminDashboard() {
                       {/* Name */}
                       <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#2d55a0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>
-                          {p.name?.charAt(0)?.toUpperCase()}
+                          <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#2d55a0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>
+                            {p.name?.charAt(0)?.toUpperCase()}
                           </div>
                           <div>
-                          <p style={{ fontSize: '13px', fontWeight: 600, color: '#1f2937', margin: '0 0 2px' }}>
-                          {p.name}
+                            <p style={{ fontSize: '13px', fontWeight: 600, color: '#1f2937', margin: '0 0 2px' }}>
+                              {p.name}
                             </p>
-                              <p style={{ fontSize: '11px', color: '#9ca3af', margin: '0 0 1px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <p style={{ fontSize: '11px', color: '#9ca3af', margin: '0 0 1px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <i className="fas fa-envelope" style={{ fontSize: '10px' }} />
                               {p.email || '—'}
-                          </p>
-                          <p style={{ fontSize: '11px', color: '#9ca3af', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <i className="fas fa-phone" style={{ fontSize: '10px' }} />
+                            </p>
+                            <p style={{ fontSize: '11px', color: '#9ca3af', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <i className="fas fa-phone" style={{ fontSize: '10px' }} />
                               {p.contact || p.contacts || p.phone
-                                  ? <><span style={{ color: '#6b7280' }}>+91</span>{' '}{p.contact || p.contacts || p.phone}</>
-                                  : '—'
-                                  }
-                                    </p>
+                                ? <><span style={{ color: '#6b7280' }}>+91</span>{' '}{p.contact || p.contacts || p.phone}</>
+                                : '—'
+                              }
+                            </p>
+                          </div>
                         </div>
-                            </div>
-                              </td>
-
-                      
+                      </td>
 
                       {/* Modules */}
                       <td style={{ padding: '14px 16px' }}>
@@ -387,7 +416,7 @@ export default function AdminDashboard() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <i className="fas fa-calendar-check" style={{ fontSize: '11px', color: '#2d55a0' }} />
                             <span style={{ fontSize: '12px', fontWeight: 600, color: '#1f2937' }}>
-                              {new Date(p.paymentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              {new Date(p.paymentDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                             </span>
                           </div>
                         ) : (
@@ -411,7 +440,7 @@ export default function AdminDashboard() {
                       </td>
 
                       {/* Action */}
-                      <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '14px 24px', whiteSpace: 'nowrap' }}>
                         {p.paymentStatus === 'Pending Verification' ? (
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <button
