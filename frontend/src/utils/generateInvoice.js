@@ -3,7 +3,11 @@ import autoTable from 'jspdf-autotable';
 
 export const generateInvoicePDF = (payment) => {
   const doc  = new jsPDF();
-  const date = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+  // REPLACE WITH:
+const dateObj = payment.paymentDate
+  ? new Date(payment.paymentDate + 'T00:00:00')
+  : new Date();
+const date = dateObj.toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
 
   // Header bar
   doc.setFillColor(46, 96, 169);
