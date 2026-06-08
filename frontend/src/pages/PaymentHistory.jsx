@@ -190,7 +190,8 @@ function ResubmitBlock({ payment, onSuccess }) {
       return;
     }
     if (!paymentDate) {
-      setError('Please select the date of payment.');
+      setError('Please select the date of pa
+               yment.');
       return;
     }
     setError('');
@@ -542,12 +543,12 @@ export default function PaymentHistory() {
                       <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
                         
                         {p.paymentDate && (
-                        <span>Paid on: {new Date(p.paymentDate).toLocaleDateString('en-IN', {
+                        <span><b>Paid on:</b> {new Date(p.paymentDate).toLocaleDateString('en-IN', {
                          day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata'
                                 })}</span>   
                               )}
                          <span> </span>
-<span> Submitted :- </span>
+<span> <b>Submitted :- </b></span>
 {formatDate(p.createdAt)}
                       </span>
                     </div>
