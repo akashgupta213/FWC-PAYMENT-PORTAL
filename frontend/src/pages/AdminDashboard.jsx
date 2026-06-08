@@ -249,7 +249,7 @@ export default function AdminDashboard() {
               {/* Single thead — columns share widths with tbody */}
               <thead>
                 <tr style={{ background: '#f0f4ff', borderBottom: '2px solid #dbe4ff' }}>
-                  {['COMET ID', 'Name', 'Modules', 'Amount', 'UTR', 'Status', 'Date', 'Action'].map(h => (
+                  {['COMET ID', 'Name', 'Modules', 'Amount', 'UTR', 'Payment Date', 'Submitted', 'Status', 'Action'].map(h => (
                     <th key={h} style={{ padding: '13px 16px', textAlign: 'left', fontSize: '10px', fontWeight: 700, color: '#1a3a8f', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
                       {h}
                     </th>
@@ -260,14 +260,14 @@ export default function AdminDashboard() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', padding: '64px 0' }}>
+                    <td colSpan={9} style={{ textAlign: 'center', padding: '64px 0' }}>
                       <i className="fas fa-spinner fa-spin" style={{ fontSize: '28px', color: '#2d55a0' }} />
                       <p style={{ fontSize: '13px', color: '#9ca3af', marginTop: '12px' }}>Loading payments…</p>
                     </td>
                   </tr>
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', padding: '64px 0' }}>
+                    <td colSpan={9} style={{ textAlign: 'center', padding: '64px 0' }}>
                       <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#f0f4ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                         <i className="fas fa-inbox" style={{ fontSize: '22px', color: '#9ca3af' }} />
                       </div>
@@ -338,18 +338,32 @@ export default function AdminDashboard() {
                         </code>
                       </td>
 
+                      {/* Payment Date — entered by student */}
+                      <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+                        {p.paymentDate ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <i className="fas fa-calendar-check" style={{ fontSize: '11px', color: '#2d55a0' }} />
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: '#1f2937' }}>
+                              {new Date(p.paymentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            </span>
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: '12px', color: '#d1d5db', fontStyle: 'italic' }}>—</span>
+                        )}
+                      </td>
+
+                      {/* Submitted — createdAt */}
+                      <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: '12px', color: '#9ca3af' }}>
+                          {new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </span>
+                      </td>
+
                       {/* Status */}
                       <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, ...STATUS_STYLE[p.paymentStatus] }}>
                           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: STATUS_DOT[p.paymentStatus], flexShrink: 0 }} />
                           {p.paymentStatus}
-                        </span>
-                      </td>
-
-                      {/* Date */}
-                      <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
-                        <span style={{ fontSize: '12px', color: '#9ca3af' }}>
-                          {new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </span>
                       </td>
 
