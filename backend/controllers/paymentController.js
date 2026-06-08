@@ -5,7 +5,7 @@ const { sendReceiptEmail, sendAdminAlert, sendPaymentVerifiedEmail, sendPaymentR
 
 const submitPayment = async (req, res) => {
   try {
-    const { modules, subTotal, grandTotal, utrNumber } = req.body;
+    const { modules, subTotal, grandTotal, utrNumber, paymentDate } = req.body;
     const studentId = req.user.id;
 
     // Prevent duplicate UTR
@@ -27,6 +27,7 @@ const submitPayment = async (req, res) => {
       subTotal,
       grandTotal,
       utrNumber,
+      paymentDate,
       paymentStatus: 'Pending Verification'
     });
 
@@ -38,6 +39,7 @@ const submitPayment = async (req, res) => {
       modules:    modules.map(m => `${m.moduleName}${m.termName ? ' - ' + m.termName : ''}`).join(', '),
       grandTotal,
       utrNumber,
+      paymentDate,
       paymentStatus: 'Pending Verification',
       timestamp:  new Date().toISOString()
     };
@@ -138,11 +140,19 @@ const updatePaymentStatus = async (req, res) => {
 const resubmitUTR = async (req, res) => {
   try {
     const { id } = req.params;
-    const { utrNumber } = req.body;
+    const { utrNumber, paymentDate } = req.body;
 
     // Validate UTR format
     if (!utrNumber || !/^[0-9]{12}$/.test(utrNumber)) {
       return res.status(400).json({ message: 'UTR must be exactly 12 digits.' });
+    }
+
+    // Validate paymentDate
+    if (!paymentDate || isNaN(new Date(paymentDate))) {
+      return res.status(400).json({ message: 'A valid date of payment is required.' });
+    }
+    if (new Date(paymentDate) > new Date()) {
+      return res.status(400).json({ message: 'Payment date cannot be in the future.' });
     }
 
     // Find the payment and verify ownership
@@ -172,8 +182,9 @@ const resubmitUTR = async (req, res) => {
       return res.status(409).json({ message: 'This UTR has already been used. Please check and try again.' });
     }
 
-    // Update: new UTR, reset status, mark resubmitted
+    // Update: new UTR, new date, reset status, mark resubmitted
     payment.utrNumber     = utrNumber;
+    payment.paymentDate   = new Date(paymentDate);
     payment.paymentStatus = 'Pending Verification';
     payment.resubmitted   = true;
     await payment.save();
