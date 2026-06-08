@@ -540,7 +540,14 @@ export default function PaymentHistory() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <i className="fas fa-calendar-days" style={{ fontSize: '12px', color: '#94a3b8' }} />
                       <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
-                        {formatDate(p.createdAt)}
+                        
+                        {p.paymentDate && (
+                        <span>Paid on: {new Date(p.paymentDate).toLocaleDateString('en-IN', {
+                         day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata'
+                                })}</span>   
+                              )}
+
+{formatDate(p.createdAt)}
                       </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
