@@ -413,12 +413,12 @@ export default function AdminDashboard() {
                       {/* Payment Date — entered by student */}
                       <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
                         {p.paymentDate ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <i className="fas fa-calendar-check" style={{ fontSize: '11px', color: '#2d55a0' }} />
-                            <span style={{ fontSize: '12px', fontWeight: 600, color: '#1f2937' }}>
-                              {new Date(p.paymentDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                            </span>
-                          </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+    <i className="fas fa-calendar-check" style={{ fontSize: '11px', color: '#2d55a0' }} />
+    <span style={{ fontSize: '12px', fontWeight: 600, color: '#1f2937' }}>
+      {new Date(p.paymentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+    </span>
+  </div>
                         ) : (
                           <span style={{ fontSize: '12px', color: '#d1d5db', fontStyle: 'italic' }}>—</span>
                         )}
