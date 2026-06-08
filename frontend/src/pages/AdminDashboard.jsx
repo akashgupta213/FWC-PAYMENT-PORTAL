@@ -12,15 +12,6 @@ const T = {
   page:     { minHeight: '100vh', background: '#eef2f7', fontFamily: "'Plus Jakarta Sans', sans-serif", display: 'flex', flexDirection: 'column' },
   card:     { background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.07)' },
 };
-const [filterModule, setFilterModule] = useState('All');
-const MODULES = [
-  'All',
-  'Module 1',
-  'Module 2 - Term 1',
-  'Module 2 - Term 2',
-  'Module 3 - Term 1',
-  'Module 3 - Term 2',
-];
 
 const STATUS_STYLE = {
   'Pending Verification': { background: '#fef9c3', color: '#854d0e', border: '1px solid #fde68a' },
@@ -92,19 +83,12 @@ export default function AdminDashboard() {
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
- const filtered = payments.filter(p => {
-  const matchesSearch = !search.trim() ||
+  const filtered = payments.filter(p =>
+    !search.trim() ||
     p.cometId?.toLowerCase().includes(search.toLowerCase()) ||
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.utrNumber?.includes(search);
-
-  const matchesModule = filterModule === 'All' || p.modules?.some(m => {
-    const label = `${m.moduleName}${m.termName ? ' - ' + m.termName : ''}`;
-    return label.toLowerCase().includes(filterModule.toLowerCase());
-  });
-
-  return matchesSearch && matchesModule;
-});;
+    p.utrNumber?.includes(search)
+  );
 
   const stats = [
     { label: 'Total Payments', count: payments.length,                                                         icon: 'fa-layer-group',  accent: '#2d55a0' },
@@ -227,7 +211,6 @@ export default function AdminDashboard() {
             />
           </div>
 
-          
           {/* Status pills */}
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             {STATUSES.map(s => (
@@ -241,33 +224,6 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-     
-          {/* Module filter */}
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {MODULES.map(m => (
-              <button
-                key={m}
-                onClick={() => setFilterModule(m)}
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  border: filterModule === m ? '1px solid #16a34a' : '1px solid #dbe4ff',
-                  background: filterModule === m ? '#16a34a' : '#f0f4ff',
-                  color: filterModule === m ? '#fff' : '#6b7280',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-
-         
-            
           {/* Export */}
           <button
             onClick={() => exportPaymentsCSV(payments)}
@@ -288,13 +244,13 @@ export default function AdminDashboard() {
         {/* ── Table ─────────────────────────────────────────────────────────── */}
         <div style={{ ...T.card, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1100px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
 
               {/* Single thead — columns share widths with tbody */}
               <thead>
                 <tr style={{ background: '#f0f4ff', borderBottom: '2px solid #dbe4ff' }}>
                   {['COMET ID', 'Name', 'Modules', 'Amount', 'UTR', 'Payment Date', 'Submitted', 'Status', 'Action'].map(h => (
-                    <th key={h} style={{ padding: '13px 10px', textAlign: 'left', fontSize: '10px', fontWeight: 700, color: '#1a3a8f', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
+                    <th key={h} style={{ padding: '13px 16px', textAlign: 'left', fontSize: '10px', fontWeight: 700, color: '#1a3a8f', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
                       {h}
                     </th>
                   ))}
@@ -335,7 +291,7 @@ export default function AdminDashboard() {
                       </td>
 
                       {/* Name */}
-                      <td style={{ padding: '14px 16px',  minWidth: '160px' }}>
+                      <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#2d55a0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>
                           {p.name?.charAt(0)?.toUpperCase()}
@@ -363,7 +319,7 @@ export default function AdminDashboard() {
 
                       {/* Modules */}
                       <td style={{ padding: '14px 16px' }}>
-                        <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '120px' }}>
+                        <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>
                           {p.modules.map(m => `${m.moduleName}${m.termName ? ' · ' + m.termName : ''}`).join(', ')}
                         </p>
                       </td>
@@ -412,7 +368,7 @@ export default function AdminDashboard() {
                       </td>
 
                       {/* Action */}
-                      <td style={{ padding: '14px 24px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
                         {p.paymentStatus === 'Pending Verification' ? (
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <button
