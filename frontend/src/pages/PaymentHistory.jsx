@@ -548,8 +548,9 @@ export default function PaymentHistory() {
                                 })}</span>   
                               )}
                          <span> </span>
-<span> <b>Submitted :- </b></span>
-{formatDate(p.createdAt)}
+<div>
+    <b>Submitted:</b> {formatDate(p.createdAt)}
+  </div>
                       </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
