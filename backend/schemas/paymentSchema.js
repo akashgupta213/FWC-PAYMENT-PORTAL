@@ -14,6 +14,10 @@ const paymentSchema = Joi.object({
   grandTotal: Joi.number().min(1).required(),
   utrNumber:  Joi.string().pattern(/^[0-9]{12}$/).required().messages({
     'string.pattern.base': 'UTR must be exactly 12 digits (e.g. 407612345678)'
+  }),
+  paymentDate: Joi.date().max('now').required().messages({
+    'date.max': 'Payment date cannot be in the future',
+    'any.required': 'Date of payment is required'
   })
 });
 
