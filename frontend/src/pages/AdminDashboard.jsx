@@ -243,14 +243,14 @@ export default function AdminDashboard() {
 
         {/* ── Table ─────────────────────────────────────────────────────────── */}
         <div style={{ ...T.card, overflow: 'hidden' }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
+          <div>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
 
               {/* Single thead — columns share widths with tbody */}
               <thead>
                 <tr style={{ background: '#f0f4ff', borderBottom: '2px solid #dbe4ff' }}>
                   {['COMET ID', 'Name', 'Modules', 'Amount', 'UTR', 'Payment Date', 'Submitted', 'Status', 'Action'].map(h => (
-                    <th key={h} style={{ padding: '13px 16px', textAlign: 'left', fontSize: '10px', fontWeight: 700, color: '#1a3a8f', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
+                    <th key={h} style={{ padding: '13px 10px', textAlign: 'left', fontSize: '10px', fontWeight: 700, color: '#1a3a8f', textTransform: 'uppercase', letterSpacing: '0.8px', whiteSpace: 'nowrap' }}>
                       {h}
                     </th>
                   ))}
@@ -291,7 +291,7 @@ export default function AdminDashboard() {
                       </td>
 
                       {/* Name */}
-                      <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '14px 16px',  minWidth: '160px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#2d55a0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>
                           {p.name?.charAt(0)?.toUpperCase()}
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
 
                       {/* Modules */}
                       <td style={{ padding: '14px 16px' }}>
-                        <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>
+                        <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '120px' }}>
                           {p.modules.map(m => `${m.moduleName}${m.termName ? ' · ' + m.termName : ''}`).join(', ')}
                         </p>
                       </td>
