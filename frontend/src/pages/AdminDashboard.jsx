@@ -412,7 +412,7 @@ export default function AdminDashboard() {
 
                       {/* Payment Date — entered by student */}
                       <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
-                        // ✅ Fix — extract date parts directly, no timezone shift
+                      
 {p.paymentDate ? (
   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
     <i className="fas fa-calendar-check" style={{ fontSize: '11px', color: '#2d55a0' }} />
