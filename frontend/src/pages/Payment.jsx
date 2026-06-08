@@ -34,7 +34,7 @@ const submit = async (utrNumber, paymentDate) => {
       paymentDate: paymentDate
     });
       toast.success('Payment submitted!');
-      navigate('/confirmation', { state: { payment: data, form, user } });
+      navigate('/confirmation', { state: { payment: data, form: { ...form, paymentDate }, user } });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Submission failed. Try again.');
     } finally {
