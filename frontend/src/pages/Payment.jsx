@@ -22,7 +22,7 @@ export default function Payment() {
   const back = () => setStep(s => Math.max(s - 1, 1));
   const updateForm = fields => setForm(prev => ({ ...prev, ...fields }));
 
-// ✅ Fixed — accept utrNumber as a parameter
+// ✅ Fixed — accept utrNumber and paymentDate as parameters
 const submit = async (utrNumber, paymentDate) => {
   setSubmitting(true);
   try {
