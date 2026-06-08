@@ -7,6 +7,16 @@ import { exportPaymentsCSV } from '../utils/exportCSV';
 
 const STATUSES = ['All', 'Pending Verification', 'Verified', 'Rejected'];
 
+// ADD THIS:
+const MODULES = [
+  'All',
+  'Module 1',
+  'Module 2 - Term 1',
+  'Module 2 - Term 2',
+  'Module 3 - Term 1',
+  'Module 3 - Term 2',
+];
+
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
   page:     { minHeight: '100vh', background: '#eef2f7', fontFamily: "'Plus Jakarta Sans', sans-serif", display: 'flex', flexDirection: 'column' },
@@ -50,7 +60,7 @@ export default function AdminDashboard() {
   const [filterComet,  setFilterComet]  = useState('');
   const [updating, setUpdating]         = useState(null);
   const [search, setSearch]             = useState('');
-
+  const [filterModule, setFilterModule] = useState('All');
   const fetchPayments = async () => {
     setLoading(true);
     try {
@@ -83,12 +93,19 @@ export default function AdminDashboard() {
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
-  const filtered = payments.filter(p =>
-    !search.trim() ||
+  const filtered = payments.filter(p => {
+  const matchesSearch = !search.trim() ||
     p.cometId?.toLowerCase().includes(search.toLowerCase()) ||
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.utrNumber?.includes(search)
-  );
+    p.utrNumber?.includes(search);
+
+  const matchesModule = filterModule === 'All' || p.modules?.some(m => {
+    const label = `${m.moduleName}${m.termName ? ' - ' + m.termName : ''}`;
+    return label.toLowerCase().includes(filterModule.toLowerCase());
+  });
+
+  return matchesSearch && matchesModule;
+});
 
   const stats = [
     { label: 'Total Payments', count: payments.length,                                                         icon: 'fa-layer-group',  accent: '#2d55a0' },
@@ -224,6 +241,32 @@ export default function AdminDashboard() {
             ))}
           </div>
 
+          {/* Module filter */}
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {MODULES.map(m => (
+              <button
+                key={m}
+                onClick={() => setFilterModule(m)}
+                style={{
+                  padding: '7px 14px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  border: filterModule === m ? '1px solid #16a34a' : '1px solid #dbe4ff',
+                  background: filterModule === m ? '#16a34a' : '#f0f4ff',
+                  color: filterModule === m ? '#fff' : '#6b7280',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+
+          {/* Export */}
+
           {/* Export */}
           <button
             onClick={() => exportPaymentsCSV(payments)}
@@ -244,7 +287,7 @@ export default function AdminDashboard() {
         {/* ── Table ─────────────────────────────────────────────────────────── */}
         <div style={{ ...T.card, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1100px' }}>
 
               {/* Single thead — columns share widths with tbody */}
               <thead>
