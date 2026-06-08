@@ -9,16 +9,31 @@ const UPI_NAME   = 'IIITB COMET FOUNDATION';
 const TIMER_SECS = 5 * 60;
 
 export default function Step5Payment({ form, updateForm, onBack, onSubmit, submitting }) {
-  const { assets }                  = useAssets();
-  const navigate                    = useNavigate();
-  const [timeLeft, setTimeLeft]     = useState(TIMER_SECS);
-  const [expired, setExpired]       = useState(false);
-  const [utr, setUtr]               = useState(form.utrNumber || '');
+  const { assets }                    = useAssets();
+  const navigate                      = useNavigate();
+  const [timeLeft, setTimeLeft]       = useState(TIMER_SECS);
+  const [expired, setExpired]         = useState(false);
+  const [utr, setUtr]                 = useState(form.utrNumber || '');
   const [paymentDate, setPaymentDate] = useState(form.paymentDate || '');
   const [dateTouched, setDateTouched] = useState(false);
-  const [touched, setTouched]       = useState(false);
-  const intervalRef                 = useRef(null);
+  const [touched, setTouched]         = useState(false);
+  const intervalRef                   = useRef(null);
 
+  // DD-MM-YYYY dropdown states
+  const [day, setDay]     = useState('');
+  const [month, setMonth] = useState('');
+  const [year, setYear]   = useState('');
+
+  // Sync dropdowns → paymentDate (stored as YYYY-MM-DD internally)
+  useEffect(() => {
+    if (day && month && year) {
+      setPaymentDate(`${year}-${month}-${day}`);
+    } else {
+      setPaymentDate('');
+    }
+  }, [day, month, year]);
+
+  // Countdown timer
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setTimeLeft(t => {
@@ -45,25 +60,62 @@ export default function Step5Payment({ form, updateForm, onBack, onSubmit, submi
   const qrSrc   = assets?.qr_code?.url
     || `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`;
 
-  const utrError = touched ? validateUTR(utr) : null;
-  const utrValid = !validateUTR(utr);
+  const utrError  = touched ? validateUTR(utr) : null;
+  const utrValid  = !validateUTR(utr);
   const dateError = dateTouched && !paymentDate ? 'Date of payment is required' : null;
   const dateValid = !!paymentDate;
 
-// ✅ Fixed — pass UTR directly so submit() doesn't depend on stale state
-const handleSubmit = () => {
-  setTouched(true);
-  setDateTouched(true);
-  if (!utrValid || !dateValid) return;
-  updateForm({ utrNumber: utr.trim(), paymentDate });
-  onSubmit(utr.trim(), paymentDate);
-};
+  const handleSubmit = () => {
+    setTouched(true);
+    setDateTouched(true);
+    if (!utrValid || !dateValid) return;
+    updateForm({ utrNumber: utr.trim(), paymentDate });
+    onSubmit(utr.trim(), paymentDate);
+  };
 
   const handleCancel = () => {
     clearInterval(intervalRef.current);
     navigate('/payment');
     window.location.reload();
   };
+
+  // today's date parts for max restriction
+  const today      = new Date();
+  const todayYear  = today.getFullYear();
+  const todayMonth = today.getMonth() + 1; // 1-based
+  const todayDay   = today.getDate();
+
+  // Build available years (2024 → current year)
+  const years = [];
+  for (let y = 2024; y <= todayYear; y++) years.push(y);
+
+  // Build available months (restrict to current year)
+  const maxMonth = year && parseInt(year) === todayYear ? todayMonth : 12;
+  const months = Array.from({ length: maxMonth }, (_, i) => String(i + 1).padStart(2, '0'));
+
+  // Build available days (restrict to current month+year, and correct days-in-month)
+  const daysInMonth = (m, y) => new Date(y, m, 0).getDate();
+  const maxDay = (year && month)
+    ? (parseInt(year) === todayYear && parseInt(month) === todayMonth
+        ? todayDay
+        : daysInMonth(parseInt(month), parseInt(year)))
+    : 31;
+  const days = Array.from({ length: maxDay }, (_, i) => String(i + 1).padStart(2, '0'));
+
+  const selectStyle = (hasValue) => ({
+    flex: 1,
+    border: `2px solid ${dateError ? '#fca5a5' : dateValid ? '#86efac' : '#dbe4ff'}`,
+    borderRadius: '10px',
+    padding: '12px 8px',
+    fontFamily: 'inherit',
+    fontSize: '15px',
+    fontWeight: 600,
+    color: hasValue ? '#1f2937' : '#9ca3af',
+    background: '#fff',
+    outline: 'none',
+    cursor: 'pointer',
+    transition: 'border-color 0.15s',
+  });
 
   const card = {
     background: '#fff',
@@ -100,9 +152,6 @@ const handleSubmit = () => {
 
   const divider = { height: '1px', background: '#dbe4ff', margin: '0 20px' };
 
-
-
-  
   // ── EXPIRED ──
   if (expired) {
     return (
@@ -200,7 +249,6 @@ const handleSubmit = () => {
               <img src={qrSrc} alt="UPI QR Code" style={{ width: '180px', height: '180px', display: 'block', borderRadius: '8px' }} />
             </div>
             <p style={{ fontSize: '11px', color: '#9ca3af', margin: '0 0 6px' }}>Scan with GPay, PhonePe, Paytm or any UPI app</p>
-            
           </div>
         </div>
 
@@ -235,7 +283,7 @@ const handleSubmit = () => {
           marginBottom: '16px',
         }}>
           <p style={{ fontSize: '11px', fontWeight: 700, color: '#1a3a8f', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i className={`fas fa-receipt`} style={{ color: utrValid && utr ? '#16a34a' : '#2d55a0' }} />
+            <i className="fas fa-receipt" style={{ color: utrValid && utr ? '#16a34a' : '#2d55a0' }} />
             Enter Your UTR / Transaction ID
           </p>
           <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 12px', lineHeight: 1.5 }}>
@@ -291,39 +339,70 @@ const handleSubmit = () => {
           <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 12px', lineHeight: 1.5 }}>
             Select the date on which you made the UPI payment
           </p>
-          <input
-  type="date"
-  value={paymentDate}
-  max={new Date().toISOString().split('T')[0]}
-  onChange={e => { setPaymentDate(e.target.value); setDateTouched(true); }}
-  onBlur={() => setDateTouched(true)}
-  style={{
-    width: '100%',
-    border: `2px solid ${dateError ? '#fca5a5' : dateValid ? '#86efac' : '#dbe4ff'}`,
-    borderRadius: '10px',
-    padding: '12px 16px',
-    fontFamily: 'inherit',
-    fontSize: '15px',
-    fontWeight: 600,
-    color: '#1f2937',
-    background: '#fff',
-    outline: 'none',
-    boxSizing: 'border-box',
-    transition: 'border-color 0.15s',
-    cursor: 'pointer',
-  }}
-/>
+
+          {/* DD - MM - YYYY dropdowns */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+
+            {/* Day */}
+            <select
+              value={day}
+              onChange={e => { setDay(e.target.value); setDateTouched(true); }}
+              onBlur={() => setDateTouched(true)}
+              style={selectStyle(!!day)}
+            >
+              <option value="">DD</option>
+              {days.map(d => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+
+            {/* Month */}
+            <select
+              value={month}
+              onChange={e => {
+                setMonth(e.target.value);
+                setDay(''); // reset day when month changes
+                setDateTouched(true);
+              }}
+              onBlur={() => setDateTouched(true)}
+              style={selectStyle(!!month)}
+            >
+              <option value="">MM</option>
+              {months.map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+
+            {/* Year */}
+            <select
+              value={year}
+              onChange={e => {
+                setYear(e.target.value);
+                setMonth(''); // reset month+day when year changes
+                setDay('');
+                setDateTouched(true);
+              }}
+              onBlur={() => setDateTouched(true)}
+              style={{ ...selectStyle(!!year), flex: 1.4 }}
+            >
+              <option value="">YYYY</option>
+              {years.map(y => (
+                <option key={y} value={String(y)}>{y}</option>
+              ))}
+            </select>
+
+          </div>
+
           {dateError && (
             <p style={{ fontSize: '12px', color: '#dc2626', margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <i className="fas fa-circle-xmark" /> {dateError}
             </p>
           )}
-         {dateValid && (
-  <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-    <i className="fas fa-circle-check" />
-    {new Date(paymentDate + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-  </p>
-)}
+          {dateValid && (
+            <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '8px 0 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <i className="fas fa-circle-check" /> {`${day}-${month}-${year}`}
+            </p>
+          )}
         </div>
 
         {/* Confirm button */}
