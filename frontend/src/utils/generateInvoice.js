@@ -32,7 +32,7 @@ const date = dateObj.toLocaleDateString('en-IN', { day:'2-digit', month:'long', 
   doc.setTextColor(22, 101, 52);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.text('Payment Submitted — Pending Verification', 14, 41);
+  doc.text('Payment Submitted', 14, 41);
 
   // Student info
   doc.setTextColor(55, 65, 81);
