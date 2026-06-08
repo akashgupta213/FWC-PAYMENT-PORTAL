@@ -546,7 +546,7 @@ export default function PaymentHistory() {
                          day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata'
                                 })}</span>   
                               )}
-
+<span>Submitted :- </span>
 {formatDate(p.createdAt)}
                       </span>
                     </div>
