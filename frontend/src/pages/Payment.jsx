@@ -15,7 +15,7 @@ export default function Payment() {
   const { user }    = useAuth();
   const navigate    = useNavigate();
   const [step, setStep]             = useState(1);
-  const [form, setForm] = useState({ modules: [], subTotal: 0, grandTotal: 0, utrNumber: '', paymentDate: '' });
+  const [form, setForm]             = useState({ modules: [], subTotal: 0, grandTotal: 0, utrNumber: '', paymentDate: '' });
   const [submitting, setSubmitting] = useState(false);
 
   const next = () => setStep(s => Math.min(s + 1, 5));
@@ -23,16 +23,15 @@ export default function Payment() {
   const updateForm = fields => setForm(prev => ({ ...prev, ...fields }));
 
 // ✅ Fixed — accept utrNumber as a parameter
-const submit = async (utrNumber , paymentDate ) => {
+const submit = async (utrNumber, paymentDate) => {
   setSubmitting(true);
   try {
     const { data } = await api.post('/payment/submit', {
       modules:    form.modules,
       subTotal:   form.subTotal,
       grandTotal: form.grandTotal,
-      utrNumber:  utrNumber,        // ← always fresh, passed directly
+      utrNumber:  utrNumber,
       paymentDate: paymentDate
-    
     });
       toast.success('Payment submitted!');
       navigate('/confirmation', { state: { payment: data, form, user } });
