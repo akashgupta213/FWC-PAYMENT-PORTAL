@@ -549,9 +549,11 @@ export default function PaymentHistory() {
                                 })}</span>   
                               )}
                          <span> </span>
+
 <div>
-    <b>Submitted:</b> {formatDate(p.createdAt)}
-  </div>
+  <b>{p.resubmitted ? 'Resubmitted:' : 'Submitted:'}</b>{' '}
+  {formatDate(p.resubmitted ? p.updatedAt : p.createdAt)}
+</div>
                       </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
