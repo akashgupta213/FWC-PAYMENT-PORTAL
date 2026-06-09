@@ -443,6 +443,21 @@ export default function AdminDashboard() {
                           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: STATUS_DOT[p.paymentStatus], flexShrink: 0 }} />
                           {p.paymentStatus}
                         </span>
+
+                        {/* 👇 Add this below the status badge */}
+  {p.resubmitted && (
+    <div style={{ marginTop: '5px' }}>
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: '4px',
+        background: '#ede9fe', border: '1px solid #c4b5fd',
+        borderRadius: '20px', padding: '3px 8px',
+        fontSize: '10px', fontWeight: 700, color: '#6d28d9',
+      }}>
+        <i className="fas fa-rotate-right" style={{ fontSize: '9px' }} />
+        Resubmitted
+      </span>
+    </div>
+  )}
                       </td>
 
                       {/* Action */}
