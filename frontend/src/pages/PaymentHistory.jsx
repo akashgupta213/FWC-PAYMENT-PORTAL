@@ -190,7 +190,8 @@ function ResubmitBlock({ payment, onSuccess }) {
       return;
     }
     if (!paymentDate) {
-      setError('Please select the date of pa
+      // ✅ Fixed
+setError('Please select the date of payment');
                yment.');
       return;
     }
