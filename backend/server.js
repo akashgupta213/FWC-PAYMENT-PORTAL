@@ -10,3 +10,10 @@ connectDB().then(() => {
     console.log(`Server running on port ${PORT}`);
   });
 });
+
+// Keep Render free tier alive
+setInterval(() => {
+  fetch("https://fwc-payment-backend.onrender.com")
+    .catch(() => {});
+}, 14 * 60 * 1000);
+
