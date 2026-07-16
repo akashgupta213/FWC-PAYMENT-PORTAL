@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Asset    = require('../models/Asset');
 
 const assets = [
-  { key: 'logo',    url: 'https://res.cloudinary.com/amnxwrag/image/upload/v1784194987/iiitblogo_1_k9rw4s.png',   altText: 'IIITB COMET Logo' },
+  { key: 'logo',    url: 'https://res.cloudinary.com/amnxwrag/image/upload/v1784195885/iiitblogo__1_-removebg-preview_fyvqyt.png',   altText: 'IIITB COMET Logo' },
   { key: 'qr_code', url: 'https://your-cdn.com/upi-qr.png',       altText: 'UPI QR Code' },
   { key: 'banner',  url: 'https://your-cdn.com/fwc-banner.jpg',    altText: 'FWC Program Banner' },
 ];
